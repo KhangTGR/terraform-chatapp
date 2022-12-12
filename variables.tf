@@ -76,6 +76,33 @@ variable "private_subnet_cidr_blocks" {
   ]
 }
 
+/* ========================================
+        ECS variables configuration
+======================================== */
+variable "ecr_repo_name" {
+  description = "ECR repository name"
+  type        = string
+  default     = "pynamo-repository"
+}
+
+variable "image_tag_mutability" {
+  description = "Image tag mutability"
+  type        = string
+  default     = "MUTABLE"
+}
+
+variable "ecs_cluster_name" {
+  description = "ECS cluster name"
+  type        = string
+  default     = "pynamo-cluster"
+}
+
+variable "ecs_task_family" {
+  description = "ECS task family"
+  type        = string
+  default     = "pynamo-task-definition"
+}
+
 /* =============================================
         For each variables configuration
 ============================================= */

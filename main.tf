@@ -12,6 +12,30 @@ data "aws_availability_zones" "available" {
 }
 
 /* =====================================
+        IAM module configuration
+===================================== */
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "ecsTaskExecutionRole" {
+  name               = "ecsTaskExecutionRole"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecsTaskExecutionRole_policy" {
+  role       = aws_iam_role.ecsTaskExecutionRole.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+/* =====================================
         VPC module configuration
 ===================================== */
 # module "vpc" {
@@ -36,6 +60,37 @@ data "aws_availability_zones" "available" {
 /* =====================================
         ECS module configuration
 ===================================== */
-module "aws_ecr_repository" {
-  resource = "./module/aws/ecs"
+resource "aws_ecr_repository" "foo" {
+  name                 = var.ecr_repo_name
+  image_tag_mutability = var.image_tag_mutability
+}
+
+resource "aws_ecs_cluster" "first_cluster" {
+  name = var.ecs_cluster_name
+}
+
+resource "aws_ecs_task_definition" "first_task_definition" {
+  family                   = var.ecs_task_family
+  container_definitions    = <<DEFINITION
+    [
+        {
+            "name": "pynamo-task",
+            "image": "pynamo-repository",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080
+                }
+            ],
+            "memory": 512,
+            "cpu": 256
+        }
+    ]
+    DEFINITION
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  memory                   = 512
+  cpu                      = 256
+  execution_role_arn       = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
