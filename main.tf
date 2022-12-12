@@ -5,25 +5,37 @@ provider "aws" {
 data "aws_availability_zones" "available" {
   state = "available"
 
-  #   filter {
-  #     name   = "zone-type"
-  #     values = ["availability-zone"]
-  #   }
+  filter {
+    name   = "zone-type"
+    values = ["availability-zone"]
+  }
 }
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "3.14.2"
+/* =====================================
+        VPC module configuration
+===================================== */
+# module "vpc" {
+#   source  = "terraform-aws-modules/vpc/aws"
+#   version = "3.14.2"
 
-  name = var.vpc_name
-  cidr = var.vpc_cidr_block
+#   name = var.vpc_name
+#   for_each = var.project
 
-  azs             = data.aws_availability_zones.available.names
-  private_subnets = slice(var.private_subnet_cidr_blocks, 0, var.private_subnet_count)
-  public_subnets  = slice(var.public_subnet_cidr_blocks, 0, var.public_subnet_count)
+#   cidr = var.vpc_cidr_block
 
-  enable_nat_gateway = var.enable_nat_gateway
-  enable_vpn_gateway = var.enable_vpn_gateway
+#   azs             = data.aws_availability_zones.available.names
+#   private_subnets = slice(var.private_subnet_cidr_blocks, 0, each.value.private_subnets_per_vpc)
+#   public_subnets  = slice(var.public_subnet_cidr_blocks, 0, each.value.public_subnets_per_vpc)
 
-  map_public_ip_on_launch = false
+#   enable_nat_gateway = var.enable_nat_gateway
+#   enable_vpn_gateway = var.enable_vpn_gateway
+
+#   map_public_ip_on_launch = false
+# }
+
+/* =====================================
+        ECS module configuration
+===================================== */
+module "aws_ecr_repository" {
+  resource = "./module/aws/ecs"
 }
