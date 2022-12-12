@@ -1,7 +1,7 @@
 terraform {
   cloud {
     workspaces {
-      name = "chatapp-terraform"
+      name = "terraform-chatapp"
     }
   }
 

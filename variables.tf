@@ -4,6 +4,12 @@ variable "region" {
   default     = "us-west-2"
 }
 
+variable "vpc_name" {
+  description = "Name of the VPC"
+  type = string
+  default = "pynamo-vpc"
+}
+
 variable "vpc_cidr_block" {
   description = "CIDR block for VPC"
   type        = string
@@ -19,7 +25,7 @@ variable "enable_vpn_gateway" {
 variable "enable_nat_gateway" {
   description = "Enable a NAT gateway in your VPC."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "public_subnet_count" {
