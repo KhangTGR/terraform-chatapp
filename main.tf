@@ -5,10 +5,10 @@ provider "aws" {
 data "aws_availability_zones" "available" {
   state = "available"
 
-#   filter {
-#     name   = "zone-type"
-#     values = ["availability-zone"]
-#   }
+  #   filter {
+  #     name   = "zone-type"
+  #     values = ["availability-zone"]
+  #   }
 }
 
 module "vpc" {
@@ -27,4 +27,3 @@ module "vpc" {
 
   map_public_ip_on_launch = false
 }
-

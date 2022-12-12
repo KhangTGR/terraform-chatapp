@@ -5,7 +5,7 @@ output "ecs_service_id" {
 
 output "ecs_task_arn" {
   description = "ARN of ecs task"
-  value       = var.use_cloudwatch_logs ? join("", aws_ecs_task_definition.main_cloudwatch[*].arn) : join("" ,aws_ecs_task_definition.main_elasticsearch_logs[*].arn)
+  value       = var.use_cloudwatch_logs ? join("", aws_ecs_task_definition.main_cloudwatch[*].arn) : join("", aws_ecs_task_definition.main_elasticsearch_logs[*].arn)
 }
 
 output "codedeploy_group_id" {

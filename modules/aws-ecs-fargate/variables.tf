@@ -2,14 +2,34 @@ variable "port" {
   description = "Port number exposed by container"
 }
 
-variable "name" {
+variable "service_name" {
   description = "Name of service"
-  default     = ""
+  type        = string
+  default     = "pynamo-service"
 }
 
-variable "service_count" {
+variable "cluster" {
+  description = "Cluster used in ECS"
+  type        = string
+  default     = "pynamo-cluster"
+}
+
+variable "desired_count" {
   description = "Number of desired task"
+  type        = number
   default     = 1
+}
+
+variable "force_new_deployment" {
+  description = "Enable force new deployment status"
+  type        = bool
+  default     = true
+}
+
+variable "use_cloudwatch_logs" {
+  description = "Enable use cloudwatch"
+  type        = bool
+  default     = false
 }
 
 variable "subnets" {
@@ -20,11 +40,6 @@ variable "subnets" {
 variable "security_groups" {
   description = "Security groups allowed"
   default     = []
-}
-
-variable "cluster" {
-  description = "Cluster used in ecs"
-  default     = ""
 }
 
 variable "role_service" {
@@ -98,13 +113,13 @@ variable "min_scale" {
 }
 
 variable "public_ip" {
-  default     = false
   description = "Flag to set auto assign public ip"
+  default     = false
 }
 
 variable "disable_autoscaling" {
-  default     = false
   description = "Flag to disable autoscaling service"
+  default     = false
 }
 
 variable "sns_topic_arn" {
@@ -136,11 +151,7 @@ variable "health_check_path" {
 
 variable "es_url" {
   description = "Elasticsearch url"
-  default = "disabled"
-}
-
-variable "use_cloudwatch_logs" {
-  default = false
+  default     = "disabled"
 }
 
 variable "prefix_logs" {

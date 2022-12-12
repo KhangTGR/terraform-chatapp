@@ -1,12 +1,12 @@
 //  AWS ECS Service to run the task definition
 resource "aws_ecs_service" "main" {
-  count = 1
-  name                 = var.name
+  count                = 1
+  name                 = var.service_name
   cluster              = var.cluster
   task_definition      = var.use_cloudwatch_logs ? aws_ecs_task_definition.main_cloudwatch[count.index].arn : aws_ecs_task_definition.main_elasticsearch_logs[count.index].arn
   scheduling_strategy  = "REPLICA"
-  desired_count        = var.service_count
-  force_new_deployment = true
+  desired_count        = var.desired_count
+  force_new_deployment = var.force_new_deployment
 
   network_configuration {
     security_groups  = var.security_groups
@@ -44,7 +44,7 @@ resource "aws_ecs_service" "main" {
 }
 
 resource "aws_ecs_task_definition" "main_cloudwatch" {
-  count = var.use_cloudwatch_logs ? 1 : 0
+  count                    = var.use_cloudwatch_logs ? 1 : 0
   family                   = "${var.name}-service"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -56,7 +56,7 @@ resource "aws_ecs_task_definition" "main_cloudwatch" {
 }
 
 resource "aws_ecs_task_definition" "main_elasticsearch_logs" {
-  count = var.use_cloudwatch_logs ? 0 : 1
+  count                    = var.use_cloudwatch_logs ? 0 : 1
   family                   = "${var.name}-service"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -235,7 +235,7 @@ resource "aws_codedeploy_app" "main" {
 
 // AWS Codedeploy Group for each codedeploy app created
 resource "aws_codedeploy_deployment_group" "main" {
-  count = 1
+  count                  = 1
   app_name               = aws_codedeploy_app.main.name
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
   deployment_group_name  = "deployment-group-${var.name}"
@@ -271,7 +271,7 @@ resource "aws_codedeploy_deployment_group" "main" {
     target_group_pair_info {
       prod_traffic_route {
         listener_arns = [
-          aws_lb_listener.main_blue_green.arn]
+        aws_lb_listener.main_blue_green.arn]
       }
 
       target_group {
@@ -284,7 +284,7 @@ resource "aws_codedeploy_deployment_group" "main" {
 
       test_traffic_route {
         listener_arns = [
-          aws_lb_listener.main_test_blue_green.arn]
+        aws_lb_listener.main_test_blue_green.arn]
       }
     }
   }
@@ -322,7 +322,7 @@ data "external" "commit_message" {
 
 // AWS Autoscaling target to linked the ecs cluster and service
 resource "aws_appautoscaling_target" "main" {
-  count = 1
+  count              = 1
   service_namespace  = "ecs"
   resource_id        = "service/${var.cluster}/${aws_ecs_service.main[count.index].name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -339,7 +339,7 @@ resource "aws_appautoscaling_target" "main" {
 
 // AWS Autoscaling policy to scale using cpu allocation
 resource "aws_appautoscaling_policy" "cpu" {
-  count = 1
+  count              = 1
   name               = "ecs_scale_cpu"
   resource_id        = aws_appautoscaling_target.main[count.index].resource_id
   scalable_dimension = aws_appautoscaling_target.main[count.index].scalable_dimension
@@ -361,7 +361,7 @@ resource "aws_appautoscaling_policy" "cpu" {
 
 // AWS Autoscaling policy to scale using memory allocation
 resource "aws_appautoscaling_policy" "memory" {
-  count = 1
+  count              = 1
   name               = "ecs_scale_memory"
   resource_id        = aws_appautoscaling_target.main[count.index].resource_id
   scalable_dimension = aws_appautoscaling_target.main[count.index].scalable_dimension
